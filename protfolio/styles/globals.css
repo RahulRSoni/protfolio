@@ -1,0 +1,116 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+  touch-action: manipulation;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* --- Custom Hover Effects --- */
+
+/* Button lift and glow */
+.btn-lift {
+  @apply transition-transform shadow-lg;
+}
+.btn-lift:hover {
+  @apply -translate-y-1 scale-105 shadow-2xl;
+  box-shadow: 0 4px 24px 0 #3B82F6AA;
+}
+
+/* Card tilt and shadow */
+.card-tilt {
+  @apply transition-transform shadow-lg;
+}
+.card-tilt:hover {
+  transform: perspective(600px) rotateY(6deg) scale(1.03);
+  box-shadow: 0 8px 32px 0 #8B5CF6AA;
+}
+
+/* Image zoom and overlay */
+.img-zoom {
+  @apply transition-transform;
+}
+.img-zoom:hover {
+  @apply scale-110;
+}
+.img-overlay {
+  @apply absolute inset-0 bg-black bg-opacity-40 opacity-0 transition-opacity;
+}
+.group:hover .img-overlay {
+  @apply opacity-100;
+}
+
+/* Icon bounce and rotate */
+.icon-bounce {
+  @apply transition-transform;
+}
+.icon-bounce:hover {
+  animation: bounce 0.6s;
+}
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+.icon-rotate:hover {
+  @apply rotate-12;
+}
+
+/* Text gradient shift */
+.text-gradient {
+  background: linear-gradient(90deg, #3B82F6, #8B5CF6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  transition: background-position 0.5s;
+  background-size: 200% 100%;
+  background-position: 0% 50%;
+}
+.text-gradient:hover {
+  background-position: 100% 50%;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.animate-fade-in {
+  animation: fade-in 0.3s ease;
+}
+@keyframes ripple {
+  to { opacity: 0; transform: scale(2); }
+}
+.animate-ripple {
+  animation: ripple 0.5s linear;
+} 
+
+/* --- Mobile & Touch Optimizations --- */
+
+html {
+  touch-action: manipulation;
+}
+
+button, a, input, textarea {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* Larger tap targets for buttons and links */
+.tap-target {
+  min-width: 44px;
+  min-height: 44px;
+  @apply px-4 py-2;
+}
+
+/* Utility for swipe gestures (to be used with JS/React handlers) */
+.swipe-area {
+  touch-action: pan-y pan-x;
+}
+
+/* Collapsible nav and mobile menu styles can be added as needed */ 
