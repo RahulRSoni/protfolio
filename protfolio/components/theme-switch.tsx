@@ -1,1 +1,0 @@
-// Placeholder for ThemeSwitch component. Implement as needed or remove this file if not used. 
