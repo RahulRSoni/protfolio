@@ -41,27 +41,27 @@ export const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const searchInput = (
-    <Input
-      aria-label="Search"
-      classNames={{
-        inputWrapper: "bg-white/10 backdrop-blur-md border border-[#8db1a4]/20",
-        input: "text-sm text-[#0a0f1d] placeholder:text-[#787a84]",
-      }}
-      endContent={
-        <Kbd className="hidden lg:inline-block bg-[#8db1a4]/20 text-[#2d4f4a]" keys={["command"]}>
-          K
-        </Kbd>
-      }
-      labelPlacement="outside"
-      placeholder="Search..."
-      startContent={
-        <SearchIcon className="text-base text-[#787a84] pointer-events-none flex-shrink-0" />
-      }
-      type="search"
-      radius="lg"
-    />
-  );
+  // const searchInput = (
+  //   <Input
+  //     aria-label="Search"
+  //     classNames={{
+  //       inputWrapper: "bg-white/10 backdrop-blur-md border border-[#8db1a4]/20",
+  //       input: "text-sm text-[#0a0f1d] placeholder:text-[#787a84]",
+  //     }}
+  //     endContent={
+  //       <Kbd className="hidden lg:inline-block bg-[#8db1a4]/20 text-[#2d4f4a]" keys={["command"]}>
+  //         K
+  //       </Kbd>
+  //     }
+  //     labelPlacement="outside"
+  //     placeholder="Search..."
+  //     startContent={
+  //       <SearchIcon className="text-base text-[#787a84] pointer-events-none flex-shrink-0" />
+  //     }
+  //     type="search"
+  //     radius="lg"
+  //   />
+  // );
 
   return (
     <motion.div
@@ -96,7 +96,7 @@ export const Navbar = () => {
                 className="font-bold text-xl text-[#0a0f1d] tracking-wide"
                 whileHover={{ scale: 1.02 }}
               >
-                DigitalCraft
+                DIGIVO
               </motion.p>
             </NextLink>
           </NavbarBrand>
@@ -140,34 +140,13 @@ export const Navbar = () => {
                 <TwitterIcon className="text-default-500" />
               </Link>
             </motion.div>
+       
             
-            <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
-              <Link
-                isExternal
-                aria-label="Discord"
-                href={siteConfig.links.discord}
-                className="text-[#787a84] hover:text-[#2d4f4a] transition-colors"
-              >
-                <DiscordIcon className="text-default-500" />
-              </Link>
-            </motion.div>
-            
-            <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
-              <Link
-                isExternal
-                aria-label="Github"
-                href={siteConfig.links.github}
-                className="text-[#787a84] hover:text-[#2d4f4a] transition-colors"
-              >
-                <GithubIcon className="text-default-500" />
-              </Link>
-            </motion.div>
+      
             
             <ThemeSwitch />
           </NavbarItem>
-          
-          <NavbarItem className="hidden lg:flex">{searchInput}</NavbarItem>
-          
+  
           <NavbarItem className="hidden md:flex">
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Button
@@ -184,48 +163,10 @@ export const Navbar = () => {
         </NavbarContent>
 
         <NavbarContent className="sm:hidden basis-1 pl-4" justify="end">
-          <Link
-            isExternal
-            aria-label="Github"
-            href={siteConfig.links.github}
-            className="text-[#787a84]"
-          >
-            <GithubIcon className="text-default-500" />
-          </Link>
           <ThemeSwitch />
           <NavbarMenuToggle />
         </NavbarContent>
 
-        <NavbarMenu className="bg-white/95 backdrop-blur-xl pt-6">
-          {searchInput}
-          <div className="mx-4 mt-6 flex flex-col gap-4">
-            {siteConfig.navMenuItems.map((item, index) => (
-              <NavbarMenuItem key={`${item.label}-${index}`}>
-                <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <Link
-                    className={clsx(
-                      "w-full text-lg font-medium",
-                      index === 2
-                        ? "text-[#2d4f4a]"
-                        : index === siteConfig.navMenuItems.length - 1
-                          ? "text-red-500"
-                          : "text-[#787a84] hover:text-[#2d4f4a]"
-                    )}
-                    href={item.href}
-                    size="lg"
-                    onPress={() => setIsMenuOpen(false)}
-                  >
-                    {item.label}
-                  </Link>
-                </motion.div>
-              </NavbarMenuItem>
-            ))}
-          </div>
-        </NavbarMenu>
       </HeroUINavbar>
     </motion.div>
   );

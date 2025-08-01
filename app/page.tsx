@@ -254,10 +254,7 @@ export default function HomePage() {
 
       
       <div className="relative w-full">
-      
         <div className="w-full h-screen"></div>
-
-      
         <div className="relative z-10 w-full bg-white">
           
           <section className="relative w-full  mt-6 lg:py-32 bg-white">
