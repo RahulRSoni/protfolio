@@ -41,28 +41,6 @@ export const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // const searchInput = (
-  //   <Input
-  //     aria-label="Search"
-  //     classNames={{
-  //       inputWrapper: "bg-white/10 backdrop-blur-md border border-[#8db1a4]/20",
-  //       input: "text-sm text-[#0a0f1d] placeholder:text-[#787a84]",
-  //     }}
-  //     endContent={
-  //       <Kbd className="hidden lg:inline-block bg-[#8db1a4]/20 text-[#2d4f4a]" keys={["command"]}>
-  //         K
-  //       </Kbd>
-  //     }
-  //     labelPlacement="outside"
-  //     placeholder="Search..."
-  //     startContent={
-  //       <SearchIcon className="text-base text-[#787a84] pointer-events-none flex-shrink-0" />
-  //     }
-  //     type="search"
-  //     radius="lg"
-  //   />
-  // );
-
   return (
     <motion.div
       className="fixed top-0 left-0 right-0 z-50"

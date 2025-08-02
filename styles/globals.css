@@ -107,6 +107,10 @@ body.digitalcraft-body::-webkit-scrollbar {
   background: transparent;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 /* Hide scrollbars on all elements */
 .digitalcraft-app,
 .digitalcraft-app *,

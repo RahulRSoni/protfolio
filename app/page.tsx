@@ -5,6 +5,8 @@ import { Button } from "@heroui/button";
 import { motion, useScroll, useTransform, useInView } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
+import { HeroFloatingBalls } from "@/components/floating-balls";
+
 
 import { siteConfig } from "@/config/site";
 import { GithubIcon } from "@/components/icons";
@@ -110,6 +112,7 @@ export default function HomePage() {
 
   return (
     <div className="relative w-full min-h-screen">
+      <HeroFloatingBalls />
       {/* Hero Section with Fixed Positioning - FULL WIDTH */}
       <motion.section 
         className="fixed inset-0 w-full h-full flex items-center justify-center overflow-hidden z-0"

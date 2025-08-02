@@ -8,6 +8,7 @@ import { siteConfig } from "@/config/site";
 import { fontSans } from "@/config/fonts";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
+import LenisProvider from "@/components/lenis-provider";
 
 export const metadata: Metadata = {
   title: {
@@ -41,6 +42,8 @@ export default function RootLayout({
           fontSans.variable,
         )}
       >
+         <LenisProvider>
+       
         <Providers themeProps={{ attribute: "class", defaultTheme: "light" }}>
           <div className="relative">
             <Navbar />
@@ -51,7 +54,9 @@ export default function RootLayout({
             <Footer />
           </div>
         </Providers>
+        </LenisProvider>
       </body>
     </html>
   );
 }
+

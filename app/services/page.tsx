@@ -1,275 +1,73 @@
 "use client";
 
 import { motion, useScroll, useTransform, useInView } from "framer-motion";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Button } from "@heroui/button";
 import { Link } from "@heroui/link";
+import { useTheme } from "next-themes";
+import dynamic from "next/dynamic";
 
-// Title utility function (since we can't import from primitives)
+// Dynamic imports for Spline components
+const ServiceSplineScene = dynamic(() => import("@/components/spline-scene").then(mod => mod.ServiceSplineScene), {
+  ssr: false,
+  loading: () => <div className="w-full h-full bg-gradient-to-br from-[#dfeoe2] to-white dark:from-[#0a0f1d] dark:to-[#2d4f4a] rounded-xl animate-pulse" />
+});
+
+const SplineScene = dynamic(() => import("@/components/spline-scene").then(mod => mod.SplineScene), {
+  ssr: false,
+  loading: () => <div className="w-full h-full bg-gradient-to-br from-[#dfeoe2] to-white dark:from-[#0a0f1d] dark:to-[#2d4f4a] rounded-xl animate-pulse" />
+});
+
+const ParallaxBackground = dynamic(() => import("@/components/parallax-background"), {
+  ssr: false
+});
+
+const FloatingBalls = dynamic(() => import("@/components/floating-balls"), {
+  ssr: false
+});
+
+// Title utility functions
 const title = ({ size = "md" }: { size?: "sm" | "md" | "lg" } = {}) => {
   const sizeClasses = {
-    sm: "text-3xl lg:text-4xl",
-    md: "text-[2.3rem] lg:text-5xl", 
-    lg: "text-4xl lg:text-6xl"
+    sm: "text-2xl sm:text-3xl lg:text-4xl",
+    md: "text-3xl sm:text-4xl lg:text-5xl xl:text-6xl", 
+    lg: "text-4xl sm:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl"
   };
-  return `tracking-tight inline font-semibold ${sizeClasses[size]}`;
+  return `tracking-tight inline font-semibold ${sizeClasses[size]} text-[#0a0f1d] dark:text-white transition-colors duration-500`;
 };
 
-const subtitle = () => "w-full md:w-1/2 my-2 text-lg lg:text-xl text-default-600 block max-w-full";
+const subtitle = () => "w-full text-base sm:text-lg lg:text-xl xl:text-2xl text-[#787a84] dark:text-[#b8bcc3] block max-w-full transition-colors duration-500";
 
-// Full-screen 3D Hero Background Component
-function HeroSplineBackground() {
-  return (
-    <div className="absolute inset-0 overflow-hidden">
-      {/* Animated gradient background */}
-      <motion.div
-        className="absolute inset-0 bg-gradient-to-br from-[#dfeoe2] via-white to-[#8db1a4]/20"
-        animate={{
-          background: [
-            "linear-gradient(135deg, #dfeoe2 0%, #ffffff 50%, rgba(141, 177, 164, 0.2) 100%)",
-            "linear-gradient(225deg, rgba(141, 177, 164, 0.3) 0%, #ffffff 50%, #2d4f4a 100%)",
-            "linear-gradient(315deg, #b8bcc3 0%, #ffffff 50%, rgba(45, 79, 74, 0.2) 100%)",
-            "linear-gradient(135deg, #dfeoe2 0%, #ffffff 50%, rgba(141, 177, 164, 0.2) 100%)"
-          ]
-        }}
-        transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
-      />
-      
-      {/* 3D Floating Elements */}
-      <div className="absolute inset-0 pointer-events-none">
-        {[...Array(20)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
-            animate={{
-              y: [-50, 50, -50],
-              x: [-30, 30, -30],
-              rotateX: [0, 360],
-              rotateY: [0, -360],
-              rotateZ: [0, 180],
-              scale: [0.5, 1.2, 0.5],
-            }}
-            transition={{
-              duration: 15 + i * 2,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: i * 0.5
-            }}
-          >
-            <div
-              className={`w-${Math.floor(Math.random() * 8) + 8} h-${Math.floor(Math.random() * 8) + 8} rounded-xl backdrop-blur-sm border border-white/20`}
-              style={{
-                background: ['#8db1a4', '#2d4f4a', '#dfeoe2', '#b8bcc3'][Math.floor(Math.random() * 4)] + '40',
-                transform: `perspective(1000px) rotateX(${Math.random() * 60}deg) rotateY(${Math.random() * 60}deg)`,
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-              }}
-            />
-          </motion.div>
-        ))}
-      </div>
-
-      {/* Particle System */}
-      <div className="absolute inset-0">
-        {[...Array(100)].map((_, i) => (
-          <motion.div
-            key={`particle-${i}`}
-            className="absolute w-1 h-1 rounded-full"
-            style={{
-              backgroundColor: ['#8db1a4', '#2d4f4a', '#dfeoe2'][Math.floor(Math.random() * 3)],
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
-            animate={{
-              y: [-200, 200, -200],
-              x: [-100, 100, -100],
-              opacity: [0, 1, 0],
-              scale: [0, 2, 0],
-            }}
-            transition={{
-              duration: Math.random() * 20 + 15,
-              repeat: Infinity,
-              delay: Math.random() * 10,
-              ease: "easeInOut"
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Glowing Orbs */}
-      {[...Array(6)].map((_, i) => (
-        <motion.div
-          key={`orb-${i}`}
-          className="absolute rounded-full filter blur-3xl"
-          style={{
-            width: Math.random() * 400 + 200,
-            height: Math.random() * 400 + 200,
-            background: `radial-gradient(circle, ${['#8db1a4', '#2d4f4a'][i % 2]}30 0%, transparent 70%)`,
-            left: `${Math.random() * 120 - 10}%`,
-            top: `${Math.random() * 120 - 10}%`,
-          }}
-          animate={{
-            scale: [1, 1.5, 1],
-            opacity: [0.3, 0.8, 0.3],
-            x: [-50, 50, -50],
-            y: [-30, 30, -30],
-          }}
-          transition={{
-            duration: 20 + i * 3,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        />
-      ))}
-    </div>
-  );
-}
-
-// Parallax Background Component
-function ParallaxBackground() {
-  const { scrollYProgress } = useScroll();
-  const y1 = useTransform(scrollYProgress, [0, 1], [0, -100]);
-  const y2 = useTransform(scrollYProgress, [0, 1], [0, -200]);
-  const y3 = useTransform(scrollYProgress, [0, 1], [0, -300]);
-
-  return (
-    <div className="absolute inset-0 overflow-hidden">
-      {/* Layer 1 - Slowest */}
-      <motion.div
-        className="absolute inset-0"
-        style={{ y: y1 }}
-      >
-        {[...Array(8)].map((_, i) => (
-          <motion.div
-            key={`layer1-${i}`}
-            className="absolute opacity-20"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 120}%`,
-              width: `${Math.random() * 100 + 50}px`,
-              height: `${Math.random() * 100 + 50}px`,
-              backgroundColor: ['#8db1a4', '#2d4f4a'][i % 2],
-              borderRadius: i % 2 === 0 ? '50%' : '12px',
-              transform: `rotate(${Math.random() * 45}deg)`,
-            }}
-            animate={{
-              rotate: [0, 360],
-              scale: [1, 1.3, 1],
-            }}
-            transition={{
-              duration: 20 + i * 3,
-              repeat: Infinity,
-              ease: "linear"
-            }}
-          />
-        ))}
-      </motion.div>
-
-      {/* Layer 2 - Medium */}
-      <motion.div
-        className="absolute inset-0"
-        style={{ y: y2 }}
-      >
-        {[...Array(6)].map((_, i) => (
-          <motion.div
-            key={`layer2-${i}`}
-            className="absolute opacity-15"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 120}%`,
-              width: `${Math.random() * 80 + 40}px`,
-              height: `${Math.random() * 80 + 40}px`,
-              backgroundColor: '#dfeoe2',
-              clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
-            }}
-            animate={{
-              rotate: [0, -360],
-              y: [-20, 20, -20],
-            }}
-            transition={{
-              duration: 15 + i * 2,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-          />
-        ))}
-      </motion.div>
-
-      {/* Layer 3 - Fastest */}
-      <motion.div
-        className="absolute inset-0"
-        style={{ y: y3 }}
-      >
-        {[...Array(10)].map((_, i) => (
-          <motion.div
-            key={`layer3-${i}`}
-            className="absolute opacity-10"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 120}%`,
-              width: `${Math.random() * 60 + 30}px`,
-              height: `${Math.random() * 60 + 30}px`,
-              backgroundColor: '#b8bcc3',
-              borderRadius: '8px',
-              transform: `rotate(${Math.random() * 45}deg)`,
-            }}
-            animate={{
-              x: [-30, 30, -30],
-              y: [-40, 40, -40],
-              rotate: [0, 180, 360],
-            }}
-            transition={{
-              duration: 10 + i,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-          />
-        ))}
-      </motion.div>
-    </div>
-  );
-}
-
-// Enhanced Service Card Component
+// Service Card Component
 function ServiceCard({ service, index }: { service: any; index: number }) {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const isInView = useInView(ref, { once: true, margin: "-50px" });
   const [isHovered, setIsHovered] = useState(false);
 
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 100, rotateX: -15 }}
+      initial={{ opacity: 0, y: 50 }}
       animate={isInView ? {
         opacity: 1,
         y: 0,
-        rotateX: 0,
         transition: {
-          duration: 0.8,
+          duration: 0.6,
           delay: index * 0.1,
-          type: "spring",
-          stiffness: 100
+          ease: [0.25, 0.46, 0.45, 0.94]
         }
       } : {}}
       whileHover={{
-        y: -15,
+        y: -8,
         scale: 1.02,
-        rotateY: 5,
         transition: { duration: 0.3 }
       }}
-      className="transform-gpu h-full"
-      style={{
-        transformStyle: 'preserve-3d',
-        perspective: '1000px'
-      }}
+      className="h-full"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="h-full bg-white/90 backdrop-blur-sm border border-[#dfeoe2] hover:border-[#8db1a4] transition-all duration-500 hover:shadow-2xl group rounded-2xl p-8 overflow-hidden relative">
-        {/* Animated background on hover */}
+      <div className="h-full bg-white/95 dark:bg-[#1a1f2e]/95 backdrop-blur-sm border border-[#dfeoe2] dark:border-[#2d4f4a] hover:border-[#8db1a4] transition-all duration-500 hover:shadow-2xl group rounded-xl p-6 lg:p-8 overflow-hidden relative">
+        {/* Hover background effect */}
         <motion.div
           className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
           style={{
@@ -277,84 +75,43 @@ function ServiceCard({ service, index }: { service: any; index: number }) {
           }}
         />
 
-        {/* Floating particles within card */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          {[...Array(5)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute w-2 h-2 rounded-full opacity-0 group-hover:opacity-60"
-              style={{
-                backgroundColor: service.color,
-                left: `${20 + i * 15}%`,
-                top: `${10 + i * 15}%`,
-              }}
-              animate={isHovered ? {
-                y: [-10, 10, -10],
-                x: [-5, 5, -5],
-                scale: [0.5, 1.5, 0.5],
-                rotate: [0, 180, 360]
-              } : {}}
-              transition={{
-                duration: 4 + i,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
-            />
-          ))}
-        </div>
-
         <div className="relative z-10">
-          {/* Service Icon with 3D effect */}
+          {/* Service Icon */}
           <motion.div
-            className="text-6xl mb-6 inline-block"
-            whileHover={{ 
-              scale: 1.2, 
-              rotate: 10,
-              transition: { type: "spring", stiffness: 300 }
-            }}
-            animate={isHovered ? {
-              rotateY: [0, 360]
-            } : {}}
+            className="text-5xl lg:text-6xl mb-6 inline-block"
+            animate={isHovered ? { rotateY: [0, 360] } : {}}
             transition={{ duration: 2 }}
           >
             {service.icon}
           </motion.div>
 
           {/* Title */}
-          <h3 className="text-2xl lg:text-3xl font-bold text-[#0a0f1d] mb-4 group-hover:text-[#2d4f4a] transition-colors">
+          <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#0a0f1d] dark:text-white mb-4 group-hover:text-[#2d4f4a] dark:group-hover:text-[#8db1a4] transition-colors">
             {service.title}
           </h3>
 
           {/* Description */}
-          <p className="text-[#787a84] leading-relaxed mb-6 text-base lg:text-lg">
+          <p className="text-[#787a84] dark:text-[#e5e7eb] leading-relaxed mb-6 text-base lg:text-lg">
             {service.description}
           </p>
 
           {/* Features */}
           <div className="mb-6">
-            <h4 className="font-semibold text-[#2d4f4a] mb-3 text-lg">Key Features:</h4>
+            <h4 className="font-semibold text-[#2d4f4a] dark:text-[#8db1a4] mb-3 text-lg">Key Features:</h4>
             <ul className="space-y-2">
               {service.features.map((feature: string, idx: number) => (
                 <motion.li
                   key={idx}
-                  className="flex items-center text-[#787a84]"
+                  className="flex items-center text-[#787a84] dark:text-[#d1d5db] text-sm sm:text-base"
                   initial={{ opacity: 0, x: -10 }}
                   animate={isInView ? { opacity: 1, x: 0 } : {}}
                   transition={{ delay: index * 0.1 + idx * 0.05 }}
-                  whileHover={{ x: 5, scale: 1.02 }}
                 >
                   <motion.span
-                    className="w-3 h-3 rounded-full mr-3 flex-shrink-0"
+                    className="w-2 h-2 sm:w-3 sm:h-3 rounded-full mr-3 flex-shrink-0"
                     style={{ backgroundColor: service.color }}
-                    whileHover={{ scale: 1.5 }}
-                    animate={{
-                      scale: [1, 1.1, 1],
-                    }}
-                    transition={{
-                      duration: 3,
-                      repeat: Infinity,
-                      delay: idx * 0.2
-                    }}
+                    animate={{ scale: [1, 1.1, 1] }}
+                    transition={{ duration: 3, repeat: Infinity, delay: idx * 0.2 }}
                   />
                   {feature}
                 </motion.li>
@@ -364,21 +121,20 @@ function ServiceCard({ service, index }: { service: any; index: number }) {
 
           {/* Technologies */}
           <div className="mb-8">
-            <h4 className="font-semibold text-[#2d4f4a] mb-3 text-lg">Technologies:</h4>
+            <h4 className="font-semibold text-[#2d4f4a] dark:text-[#8db1a4] mb-3 text-lg">Technologies:</h4>
             <div className="flex flex-wrap gap-2">
               {service.technologies.map((tech: string, idx: number) => (
                 <motion.span
                   key={idx}
-                  className="px-3 py-1 bg-[#dfeoe2] text-[#2d4f4a] text-sm rounded-full font-medium"
+                  className="px-3 py-1 bg-[#dfeoe2] dark:bg-[#374151] text-[#2d4f4a] dark:text-[#e5e7eb] text-sm rounded-full font-medium"
                   whileHover={{ 
                     scale: 1.05, 
                     backgroundColor: service.color, 
                     color: "white" 
                   }}
-                  transition={{ duration: 0.2 }}
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={isInView ? { opacity: 1, scale: 1 } : {}}
-                  style={{ transitionDelay: `${idx * 0.05}s` }}
+                  transition={{ delay: index * 0.1 + idx * 0.05 }}
                 >
                   {tech}
                 </motion.span>
@@ -391,20 +147,10 @@ function ServiceCard({ service, index }: { service: any; index: number }) {
             <Button
               as={Link}
               href={`/services/${service.id}`}
-              className="w-full bg-[#2d4f4a] text-white hover:bg-[#8db1a4] transition-colors font-semibold py-4 text-lg relative overflow-hidden"
+              className="w-full bg-[#2d4f4a] dark:bg-[#8db1a4] text-white dark:text-[#0a0f1d] hover:bg-[#8db1a4] dark:hover:bg-[#2d4f4a] hover:text-white font-semibold py-4 text-lg"
               radius="lg"
             >
-              <span className="relative z-10">Learn More</span>
-              <motion.div
-                className="absolute inset-0 bg-white/20"
-                initial={{ scale: 0, opacity: 1 }}
-                whileHover={{
-                  scale: 2,
-                  opacity: 0,
-                  transition: { duration: 0.6 }
-                }}
-                style={{ borderRadius: '50%' }}
-              />
+              Learn More
             </Button>
           </motion.div>
         </div>
@@ -413,15 +159,146 @@ function ServiceCard({ service, index }: { service: any; index: number }) {
   );
 }
 
-export default function ServicesPage() {
-  const containerRef = useRef(null);
+// Process Section
+function ProcessSection() {
+  const ref = useRef(null);
+  const { theme, systemTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const currentTheme = theme === 'system' ? systemTheme : theme;
+  const isDark = currentTheme === 'dark';
+
   const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end end"]
+    target: ref,
+    offset: ["start end", "end start"]
   });
 
-  const heroY = useTransform(scrollYProgress, [0, 0.3], [0, -100]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.3], [1, 0]);
+  const y = useTransform(scrollYProgress, [0, 1], [50, -50]);
+
+  const processes = [
+    { step: "01", title: "Discovery", description: "Understanding your goals and requirements" },
+    { step: "02", title: "Strategy", description: "Developing the optimal technical approach" },
+    { step: "03", title: "Design", description: "Creating user-centered interface designs" },
+    { step: "04", title: "Development", description: "Building with cutting-edge technologies" },
+    { step: "05", title: "Testing", description: "Ensuring quality and performance" },
+    { step: "06", title: "Launch", description: "Deploying and monitoring your solution" }
+  ];
+
+  if (!mounted) return null;
+
+  return (
+    <section ref={ref} className="py-24 lg:py-32 bg-[#0a0f1d] text-white relative overflow-hidden">
+      {/* Background 3D Scene with parallax */}
+      <motion.div
+        className="absolute inset-0 opacity-20 dark:opacity-30"
+        style={{ y }}
+      >
+        {/* Light Mode Scene */}
+        <motion.div
+          className="absolute inset-0 w-full h-full"
+          animate={{ opacity: isDark ? 0 : 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          <SplineScene
+            sceneUrl="https://prod.spline.design/6Wq1Q7YGyM-iab9i/scene.splinecode"
+            className="w-full h-full"
+          />
+        </motion.div>
+
+        {/* Dark Mode Scene */}
+        <motion.div
+          className="absolute inset-0 w-full h-full"
+          animate={{ opacity: isDark ? 1 : 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <SplineScene
+            sceneUrl="https://prod.spline.design/pvM5sSiYV2ivWraz/scene.splinecode"
+            className="w-full h-full"
+          />
+        </motion.div>
+      </motion.div>
+
+      <div className="relative z-10 max-w-7xl mx-auto px-6">
+        <motion.div
+          className="text-center mb-20"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+        >
+          <h2 className="text-4xl lg:text-5xl xl:text-6xl font-semibold text-white mb-6">
+            Our <span className="text-[#8db1a4]">Process</span>
+          </h2>
+          <p className="text-lg lg:text-xl text-[#b8bcc3] max-w-2xl mx-auto">
+            A proven methodology that delivers exceptional results
+          </p>
+        </motion.div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {processes.map((process, index) => (
+            <motion.div
+              key={process.step}
+              className="text-center group"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1, duration: 0.6 }}
+              viewport={{ once: true }}
+              whileHover={{ y: -5 }}
+            >
+              <motion.div
+                className="w-16 h-16 bg-[#2d4f4a] rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold group-hover:bg-[#8db1a4] transition-colors"
+                whileHover={{ scale: 1.1 }}
+              >
+                {process.step}
+              </motion.div>
+              <h3 className="text-xl font-semibold mb-2 group-hover:text-[#8db1a4] transition-colors">
+                {process.title}
+              </h3>
+              <p className="text-[#b8bcc3] leading-relaxed">
+                {process.description}
+              </p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export default function ServicesPage() {
+  const containerRef = useRef(null);
+  const { theme, systemTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const currentTheme = theme === 'system' ? systemTheme : theme;
+  const isDark = currentTheme === 'dark';
+
+  // Scroll progress for hero parallax
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end start"]
+  });
+
+  const heroY = useTransform(scrollYProgress, [0, 1], [0, -100]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
+
+  // Smooth scroll function using native Lenis
+  const scrollToSection = (selector: string) => {
+    const target = document.querySelector(selector);
+    if (target) {
+      target.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+  };
 
   // Services data
   const services = [
@@ -517,229 +394,156 @@ export default function ServicesPage() {
     }
   ];
 
+  if (!mounted) return null;
+
   return (
-    <div ref={containerRef} className="min-h-screen bg-white">
-      {/* Full-Screen Hero Section */}
-      <motion.section
-        className="relative min-h-screen flex items-center justify-center overflow-hidden"
-        style={{ y: heroY, opacity: heroOpacity }}
-      >
-        {/* Full-screen 3D Background */}
-        <HeroSplineBackground />
+    <div ref={containerRef} className="min-h-screen bg-white dark:bg-[#0a0f1d] relative">
+      {/* Floating Balls Background */}
+      <FloatingBalls
+        density={80}
+        colors={isDark ? ['#8db1a4', '#2d4f4a', '#ffffff'] : ['#8db1a4', '#2d4f4a', '#dfeoe2']}
+        opacity={isDark ? 0.3 : 0.4}
+        speed={1}
+        size={{ min: 2, max: 6 }}
+      />
+
+      {/* FULL-SCREEN Hero Section */}
+      <section className="h-screen w-full flex items-center justify-center overflow-hidden relative">
+        {/* Full-Screen Parallax Background */}
+        <motion.div 
+          className="absolute inset-0 w-full h-full"
+          style={{ y: heroY, opacity: heroOpacity }}
+        >
+          <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-[#dfeoe2] via-white to-[#b8bcc3]/20 dark:from-[#0a0f1d] dark:via-[#1a1f2e] dark:to-[#2d4f4a]/20 transition-all duration-700">
+            <ParallaxBackground />
+          </div>
+        </motion.div>
+
+        {/* Full-Screen 3D Spline Elements */}
+        <motion.div
+          className="absolute inset-0 w-full h-full"
+          style={{ y: heroY, opacity: heroOpacity }}
+        >
+          {/* Light Mode 3D Scene */}
+          <motion.div
+            className="absolute inset-0 w-full h-full"
+            animate={{
+              opacity: isDark ? 0 : 1,
+              scale: isDark ? 0.98 : 1,
+            }}
+            transition={{ duration: 0.5 }}
+          >
+            <ServiceSplineScene className="w-full h-full" />
+          </motion.div>
+
+          {/* Dark Mode 3D Scene */}
+          <motion.div
+            className="absolute inset-0 w-full h-full"
+            animate={{
+              opacity: isDark ? 1 : 0,
+              scale: isDark ? 1 : 0.98,
+            }}
+            transition={{ duration: 0.5 }}
+          >
+            <SplineScene
+              sceneUrl="https://prod.spline.design/pvM5sSiYV2ivWraz/scene.splinecode"
+              className="w-full h-full"
+            />
+          </motion.div>
+        </motion.div>
 
         {/* Hero Content */}
-        <div className="relative z-20 text-center max-w-6xl mx-auto px-6">
+        <div className="relative z-20 text-center w-full max-w-7xl mx-auto px-6">
           <motion.h1
-            className={`${title({ size: "lg" })} text-[#0a0f1d] mb-8`}
-            initial={{ opacity: 0, y: 50 }}
+            className={`${title({ size: "lg" })} mb-8`}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
+            style={{
+              textShadow: isDark ? '0 4px 20px rgba(0,0,0,0.8)' : '0 4px 20px rgba(255,255,255,0.8)'
+            }}
           >
-            Our <span className="text-[#2d4f4a]">Services</span>
+            Our <span className="text-[#2d4f4a] dark:text-[#8db1a4]">Services</span>
           </motion.h1>
 
           <motion.p
-            className={`${subtitle()} text-[#787a84] mb-12 max-w-4xl mx-auto`}
-            initial={{ opacity: 0, y: 30 }}
+            className={`${subtitle()} mb-16 max-w-4xl mx-auto`}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
+            style={{
+              textShadow: isDark ? '0 2px 10px rgba(0,0,0,0.7)' : '0 2px 10px rgba(255,255,255,0.7)'
+            }}
           >
             Comprehensive digital solutions that drive innovation and growth across multiple platforms and technologies
           </motion.p>
-
-          <motion.div
-            className="flex flex-col sm:flex-row gap-6 justify-center"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
-          >
-            <motion.div
-              whileHover={{ scale: 1.05, y: -3 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <Button
-                size="lg"
-                className="bg-[#2d4f4a] text-white hover:bg-[#8db1a4] px-12 py-6 text-lg font-semibold shadow-2xl"
-                radius="full"
-              >
-                Explore All Services
-              </Button>
-            </motion.div>
-            
-            <motion.div
-              whileHover={{ scale: 1.05, y: -3 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <Button
-                variant="bordered"
-                size="lg"
-                className="border-2 border-[#2d4f4a] text-[#2d4f4a] hover:bg-[#2d4f4a] hover:text-white px-12 py-6 text-lg font-semibold shadow-xl"
-                radius="full"
-              >
-                Get Custom Quote
-              </Button>
-            </motion.div>
-          </motion.div>
         </div>
-      </motion.section>
 
-      {/* Services Grid Section with Parallax Background */}
-      <section className="relative py-32 px-6 bg-white">
-        {/* Parallax Background */}
-        <ParallaxBackground />
-
-        <div className="relative z-10 max-w-7xl mx-auto">
+        {/* Scroll Indicator */}
+        <motion.div
+          className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.5 }}
+        >
           <motion.div
-            className="text-center mb-20"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
+            className="w-8 h-14 border-2 border-white/60 dark:border-[#8db1a4]/60 rounded-full flex justify-center cursor-pointer backdrop-blur-sm bg-white/10 dark:bg-black/20"
+            animate={{ y: [0, 8, 0] }}
+            transition={{ duration: 2, repeat: Infinity }}
+            whileHover={{ scale: 1.1 }}
+            onClick={() => scrollToSection('.services-content')}
           >
-            <h2 className={`${title()} text-[#0a0f1d] mb-6`}>
-              What We <span className="text-[#2d4f4a]">Offer</span>
-            </h2>
-            <p className={`${subtitle()} text-[#787a84] max-w-3xl mx-auto`}>
-              Expert solutions across the digital spectrum
-            </p>
+            <motion.div 
+              className="w-2 h-5 bg-white/80 dark:bg-[#8db1a4]/80 rounded-full mt-3"
+              animate={{ y: [0, 6, 0], opacity: [1, 0.3, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            />
           </motion.div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-            {services.map((service, index) => (
-              <ServiceCard key={service.id} service={service} index={index} />
-            ))}
-          </div>
-        </div>
+        </motion.div>
       </section>
 
-      {/* Process Section with 3D Background */}
-      <section className="py-32 bg-[#0a0f1d] text-white relative overflow-hidden">
-        {/* 3D Background Animation */}
-        <div className="absolute inset-0 opacity-20">
-          {[...Array(12)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                width: `${Math.random() * 100 + 50}px`,
-                height: `${Math.random() * 100 + 50}px`,
-                backgroundColor: ['#8db1a4', '#2d4f4a'][i % 2],
-                borderRadius: i % 2 === 0 ? '50%' : '12px',
-              }}
-              animate={{
-                y: [-50, 50, -50],
-                x: [-30, 30, -30],
-                rotate: [0, 360],
-                scale: [0.8, 1.3, 0.8],
-              }}
-              transition={{
-                duration: 15 + i * 2,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
-            />
+      {/* Services Content Section */}
+      <section className="services-content py-24 lg:py-32 px-6 max-w-7xl mx-auto">
+        <motion.div
+          className="text-center mb-20"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+        >
+          <h2 className={`${title()} mb-6`}>
+            What We <span className="text-[#2d4f4a] dark:text-[#8db1a4]">Offer</span>
+          </h2>
+          <p className={`${subtitle()} max-w-3xl mx-auto`}>
+            Expert solutions across the digital spectrum
+          </p>
+        </motion.div>
+
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 lg:gap-12">
+          {services.map((service, index) => (
+            <ServiceCard key={service.id} service={service} index={index} />
           ))}
         </div>
-
-        <div className="relative z-10 max-w-7xl mx-auto px-6">
-          <motion.div
-            className="text-center mb-20"
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-          >
-            <h2 className={`${title()} text-white mb-6`}>
-              Our <span className="text-[#8db1a4]">Process</span>
-            </h2>
-            <p className={`${subtitle()} text-[#b8bcc3] max-w-2xl mx-auto`}>
-              A proven methodology that delivers exceptional results
-            </p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              { step: "01", title: "Discovery", description: "Understanding your goals and requirements" },
-              { step: "02", title: "Strategy", description: "Developing the optimal technical approach" },
-              { step: "03", title: "Design", description: "Creating user-centered interface designs" },
-              { step: "04", title: "Development", description: "Building with cutting-edge technologies" },
-              { step: "05", title: "Testing", description: "Ensuring quality and performance" },
-              { step: "06", title: "Launch", description: "Deploying and monitoring your solution" }
-            ].map((process, index) => (
-              <motion.div
-                key={process.step}
-                className="text-center group"
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1, duration: 0.6 }}
-                viewport={{ once: true }}
-                whileHover={{ y: -5 }}
-              >
-                <motion.div
-                  className="w-16 h-16 bg-[#2d4f4a] rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold group-hover:bg-[#8db1a4] transition-colors"
-                  whileHover={{ scale: 1.1, rotate: 5 }}
-                >
-                  {process.step}
-                </motion.div>
-                <h3 className="text-xl font-semibold mb-2 group-hover:text-[#8db1a4] transition-colors">
-                  {process.title}
-                </h3>
-                <p className="text-[#b8bcc3] leading-relaxed">
-                  {process.description}
-                </p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
       </section>
+
+      {/* Process Section */}
+      <ProcessSection />
 
       {/* CTA Section */}
-      <section className="py-32 px-6 bg-[#dfeoe2] relative overflow-hidden">
-        {/* Parallax Background Elements */}
-        <div className="absolute inset-0">
-          {[...Array(8)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute rounded-full mix-blend-multiply filter blur-xl opacity-40"
-              style={{
-                background: `radial-gradient(circle, ${['#8db1a4', '#2d4f4a'][i % 2]}40 0%, transparent 70%)`,
-                width: Math.random() * 300 + 200,
-                height: Math.random() * 300 + 200,
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-              }}
-              animate={{
-                x: [-50, 50, -50],
-                y: [-30, 30, -30],
-                scale: [1, 1.2, 1],
-              }}
-              transition={{
-                duration: 15 + i * 2,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
-            />
-          ))}
-        </div>
-
-        <div className="relative z-10 max-w-4xl mx-auto text-center">
+      <section className="py-24 lg:py-32 px-6 bg-[#dfeoe2] dark:bg-[#1a1f2e]">
+        <div className="max-w-4xl mx-auto text-center">
           <motion.h2
-            className={`${title()} text-[#0a0f1d] mb-6`}
+            className={`${title()} mb-6`}
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
-            Ready to Start Your <span className="text-[#2d4f4a]">Project</span>?
+            Ready to Start Your <span className="text-[#2d4f4a] dark:text-[#8db1a4]">Project</span>?
           </motion.h2>
           
           <motion.p
-            className={`${subtitle()} text-[#787a84] mb-12 max-w-3xl mx-auto`}
+            className={`${subtitle()} mb-12`}
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
             viewport={{ once: true }}
           >
             Let's discuss how we can help transform your digital presence with our comprehensive solutions
@@ -749,7 +553,6 @@ export default function ServicesPage() {
             className="flex flex-col sm:flex-row gap-4 justify-center"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
             viewport={{ once: true }}
           >
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
@@ -757,16 +560,10 @@ export default function ServicesPage() {
                 as={Link}
                 href="/contact"
                 size="lg"
-                className="bg-[#2d4f4a] text-white hover:bg-[#8db1a4] px-8 py-4 text-lg font-semibold shadow-2xl relative overflow-hidden"
+                className="bg-[#2d4f4a] dark:bg-[#8db1a4] text-white dark:text-[#0a0f1d] hover:bg-[#8db1a4] dark:hover:bg-[#2d4f4a] px-8 py-4 text-lg font-semibold"
                 radius="lg"
               >
-                <span className="relative z-10">Get Started Today</span>
-                <motion.div
-                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
-                  initial={{ x: "-100%" }}
-                  whileHover={{ x: "100%" }}
-                  transition={{ duration: 0.6 }}
-                />
+                Get Started Today
               </Button>
             </motion.div>
             
@@ -776,7 +573,7 @@ export default function ServicesPage() {
                 href="/contact"
                 variant="bordered"
                 size="lg"
-                className="border-2 border-[#2d4f4a] text-[#2d4f4a] hover:bg-[#2d4f4a] hover:text-white px-8 py-4 text-lg font-semibold shadow-xl"
+                className="border-2 border-[#2d4f4a] dark:border-[#8db1a4] text-[#2d4f4a] dark:text-[#8db1a4] hover:bg-[#2d4f4a] dark:hover:bg-[#8db1a4] hover:text-white dark:hover:text-[#0a0f1d] px-8 py-4 text-lg font-semibold"
                 radius="lg"
               >
                 Schedule Consultation
