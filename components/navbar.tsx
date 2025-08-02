@@ -17,6 +17,7 @@ import { link as linkStyles } from "@heroui/theme";
 import NextLink from "next/link";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
+import { useTheme } from "next-themes";
 import clsx from "clsx";
 
 import { siteConfig } from "@/config/site";
@@ -31,6 +32,13 @@ import {
 export const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const { theme, systemTheme } = useTheme();
+
+  // Ensure component is mounted before accessing theme
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -40,6 +48,35 @@ export const Navbar = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Get current theme
+  const currentTheme = theme === 'system' ? systemTheme : theme;
+  const isDark = currentTheme === 'dark';
+
+  // Prevent hydration mismatch
+  if (!mounted) return null;
+
+  const searchInput = (
+    <Input
+      aria-label="Search"
+      classNames={{
+        inputWrapper: "bg-white/10 dark:bg-black/20 backdrop-blur-md border border-[#8db1a4]/20 dark:border-[#8db1a4]/30",
+        input: "text-sm text-[#0a0f1d] dark:text-white placeholder:text-[#787a84] dark:placeholder:text-[#b8bcc3]",
+      }}
+      endContent={
+        <Kbd className="hidden lg:inline-block bg-[#8db1a4]/20 dark:bg-[#8db1a4]/30 text-[#2d4f4a] dark:text-[#8db1a4]" keys={["command"]}>
+          K
+        </Kbd>
+      }
+      labelPlacement="outside"
+      placeholder="Search..."
+      startContent={
+        <SearchIcon className="text-base text-[#787a84] dark:text-[#b8bcc3] pointer-events-none flex-shrink-0" />
+      }
+      type="search"
+      radius="lg"
+    />
+  );
 
   return (
     <motion.div
@@ -54,8 +91,8 @@ export const Navbar = () => {
         className={clsx(
           "transition-all duration-500",
           isScrolled
-            ? "bg-white/80 backdrop-blur-xl border-b border-[#dfeoe2] shadow-lg"
-            : "bg-transparent"
+            ? "bg-white/95 dark:bg-[#0a0f1d]/95 backdrop-blur-xl border-b border-[#dfeoe2] dark:border-[#2d4f4a] shadow-lg dark:shadow-xl dark:shadow-black/20"
+            : "bg-white/10 dark:bg-[#0a0f1d]/80 backdrop-blur-md border-b border-white/10 dark:border-[#2d4f4a]/50"
         )}
         isMenuOpen={isMenuOpen}
         onMenuOpenChange={setIsMenuOpen}
@@ -64,14 +101,16 @@ export const Navbar = () => {
           <NavbarBrand as="li" className="gap-3 max-w-fit">
             <NextLink className="flex justify-start items-center gap-2" href="/">
               <motion.div
-                className="w-10 h-10 bg-gradient-to-br from-[#2d4f4a] to-[#8db1a4] rounded-lg flex items-center justify-center"
+                className="w-10 h-10 bg-gradient-to-br from-[#2d4f4a] to-[#8db1a4] dark:from-[#8db1a4] dark:to-[#2d4f4a] rounded-lg flex items-center justify-center shadow-lg dark:shadow-[#8db1a4]/20"
                 whileHover={{ scale: 1.05, rotate: 5 }}
                 transition={{ type: "spring", stiffness: 400 }}
               >
-                <span className="text-white font-bold text-lg">D</span>
+                <span className="text-white dark:text-[#0a0f1d] font-bold text-lg transition-colors duration-300">
+                  D
+                </span>
               </motion.div>
               <motion.p
-                className="font-bold text-xl text-[#0a0f1d] tracking-wide"
+                className="font-bold text-xl text-[#0a0f1d] dark:text-white tracking-wide transition-colors duration-300"
                 whileHover={{ scale: 1.02 }}
               >
                 DIGIVO
@@ -91,13 +130,13 @@ export const Navbar = () => {
                   <NextLink
                     className={clsx(
                       linkStyles({ color: "foreground" }),
-                      "text-[#787a84] hover:text-[#2d4f4a] font-medium transition-colors duration-300 relative group"
+                      "text-[#787a84] dark:text-[#b8bcc3] hover:text-[#2d4f4a] dark:hover:text-[#8db1a4] font-medium transition-colors duration-300 relative group"
                     )}
                     href={item.href}
                   >
                     {item.label}
                     <motion.div
-                      className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#8db1a4] group-hover:w-full transition-all duration-300"
+                      className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#8db1a4] dark:bg-[#8db1a4] group-hover:w-full transition-all duration-300"
                     />
                   </NextLink>
                 </motion.div>
@@ -113,24 +152,45 @@ export const Navbar = () => {
                 isExternal
                 aria-label="Twitter"
                 href={siteConfig.links.twitter}
-                className="text-[#787a84] hover:text-[#2d4f4a] transition-colors"
+                className="text-[#787a84] dark:text-[#b8bcc3] hover:text-[#2d4f4a] dark:hover:text-[#8db1a4] transition-colors duration-300"
               >
-                <TwitterIcon className="text-default-500" />
+                <TwitterIcon className="text-default-500 dark:text-[#b8bcc3]" />
               </Link>
             </motion.div>
-       
             
-      
+            <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
+              <Link
+                isExternal
+                aria-label="Discord"
+                href={siteConfig.links.discord}
+                className="text-[#787a84] dark:text-[#b8bcc3] hover:text-[#2d4f4a] dark:hover:text-[#8db1a4] transition-colors duration-300"
+              >
+                <DiscordIcon className="text-default-500 dark:text-[#b8bcc3]" />
+              </Link>
+            </motion.div>
+            
+            <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
+              <Link
+                isExternal
+                aria-label="Github"
+                href={siteConfig.links.github}
+                className="text-[#787a84] dark:text-[#b8bcc3] hover:text-[#2d4f4a] dark:hover:text-[#8db1a4] transition-colors duration-300"
+              >
+                <GithubIcon className="text-default-500 dark:text-[#b8bcc3]" />
+              </Link>
+            </motion.div>
             
             <ThemeSwitch />
           </NavbarItem>
-  
+          
+          <NavbarItem className="hidden lg:flex">{searchInput}</NavbarItem>
+          
           <NavbarItem className="hidden md:flex">
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Button
                 as={Link}
                 href="/contact"
-                className="bg-[#2d4f4a] text-white hover:bg-[#8db1a4] font-semibold transition-colors duration-300"
+                className="bg-[#2d4f4a] dark:bg-[#8db1a4] text-white dark:text-[#0a0f1d] hover:bg-[#8db1a4] dark:hover:bg-[#2d4f4a] hover:text-white dark:hover:text-white font-semibold transition-all duration-300 shadow-lg dark:shadow-[#8db1a4]/20"
                 radius="lg"
                 variant="solid"
               >
@@ -141,10 +201,48 @@ export const Navbar = () => {
         </NavbarContent>
 
         <NavbarContent className="sm:hidden basis-1 pl-4" justify="end">
+          <Link
+            isExternal
+            aria-label="Github"
+            href={siteConfig.links.github}
+            className="text-[#787a84] dark:text-[#b8bcc3] hover:text-[#2d4f4a] dark:hover:text-[#8db1a4] transition-colors duration-300"
+          >
+            <GithubIcon className="text-default-500 dark:text-[#b8bcc3]" />
+          </Link>
           <ThemeSwitch />
-          <NavbarMenuToggle />
+          <NavbarMenuToggle className="text-[#787a84] dark:text-[#b8bcc3] hover:text-[#2d4f4a] dark:hover:text-[#8db1a4]" />
         </NavbarContent>
 
+        <NavbarMenu className="bg-white/95 dark:bg-[#0a0f1d]/95 backdrop-blur-xl pt-6 border-r border-[#dfeoe2] dark:border-[#2d4f4a] transition-colors duration-500">
+          {searchInput}
+          <div className="mx-4 mt-6 flex flex-col gap-4">
+            {siteConfig.navMenuItems.map((item, index) => (
+              <NavbarMenuItem key={`${item.label}-${index}`}>
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <Link
+                    className={clsx(
+                      "w-full text-lg font-medium transition-colors duration-300",
+                      index === 2
+                        ? "text-[#2d4f4a] dark:text-[#8db1a4]"
+                        : index === siteConfig.navMenuItems.length - 1
+                          ? "text-red-500 dark:text-red-400"
+                          : "text-[#787a84] dark:text-[#b8bcc3] hover:text-[#2d4f4a] dark:hover:text-[#8db1a4]"
+                    )}
+                    href={item.href}
+                    size="lg"
+                    onPress={() => setIsMenuOpen(false)}
+                  >
+                    {item.label}
+                  </Link>
+                </motion.div>
+              </NavbarMenuItem>
+            ))}
+          </div>
+        </NavbarMenu>
       </HeroUINavbar>
     </motion.div>
   );
